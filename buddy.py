@@ -1,80 +1,79 @@
+# Install streamlit
+!pip install streamlit
+
 import streamlit as st
 import google.generativeai as genai
-import time
+import datetime
 
-# --- CONFIGURE GEMINI ---
-genai.configure(api_key="YOUR_API_KEY")  # Replace with your actual Gemini API key
-model = genai.GenerativeModel(model_name="models/gemma-3-1b-it")
+# --- SETUP ---
 
-# --- PRODUCT KNOWLEDGE BASE (manual grounding for now) ---
-dlp_kb = """
-🔐 Microsoft Data Loss Prevention (DLP)
-Microsoft DLP helps prevent accidental or intentional sharing of sensitive data. 
-It protects Exchange, SharePoint, Teams, OneDrive, and endpoints.
+# Configure Gemini API
+genai.configure(api_key="AIzaSyD_uKqUnDhj7eV0WzNe4IH-z0bwwSe36mM")  # Replace with your Gemini API key
 
-Common features:
-- Policy tips for real-time education
-- Pre-built rules for financial, health, and PII data
-- Activity Explorer to review incidents
-"""
+model = genai.GenerativeModel("models/gemma-3-1b-it")  # Use working model
 
-# --- UI TITLE ---
-st.title("🧭 Onboarding Buddy (Microsoft DLP Edition)")
-st.markdown("### Personalized tour with smart feedback")
 
-# --- USER INPUT ---
-persona = st.text_input("👤 Who are you? (e.g., 'Security analyst at a bank')")
-goal = st.text_input("🎯 What do you want to achieve using Microsoft DLP?")
+# --- MEMORY ---
 
-# --- ONBOARD BUTTON ---
-if st.button("Generate Onboarding Response"):
-    with st.spinner("Thinking..."):
-        # --- PROMPT SETUP ---
-        prompt = f"""
-You are a friendly onboarding buddy for Microsoft DLP.
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+if "user_goal" not in st.session_state:
+    st.session_state.user_goal = ""
 
-User persona: {persona}
-User goal: {goal}
+# --- UI START ---
 
-Product KB:
-{dlp_kb}
+st.title("🧠 AI Onboarding Buddy")
+st.subheader("Helping you onboard to Microsoft DLP, your way.")
 
-Your task:
-- Greet them
-- Understand their goal
-- Suggest one thing to try
-- Keep it friendly and simple
-"""
+# Ask user name
+if not st.session_state.user_name:
+    name = st.text_input("👋 What's your name?")
+    if name:
+        st.session_state.user_name = name
 
-        time.sleep(1)
-        response = model.generate_content(prompt)
-        bot_reply = response.text
+# Ask user goal
+if st.session_state.user_name and not st.session_state.user_goal:
+    goal = st.text_input(f"Hi {st.session_state.user_name}, what's the first thing you want to achieve?")
+    if goal:
+        st.session_state.user_goal = goal
 
-        # --- DISPLAY BOT REPLY ---
-        st.markdown("### 🤖 Onboarding Buddy says:")
-        st.write(bot_reply)
+# Trigger onboarding
+if st.session_state.user_goal:
+    st.markdown("✅ Loading your personalized onboarding...")
 
-        # --- FEEDBACK SECTION ---
-        st.markdown("---")
-        st.subheader("📝 Your Feedback")
+    prompt = f"""
+    You are a helpful onboarding bot for Microsoft Data Loss Prevention (DLP).
 
-        feedback_choice = st.radio("Was this helpful?", ["👍 Yes", "👎 No"])
+    User: {st.session_state.user_name}
+    Goal: {st.session_state.user_goal}
 
-        if feedback_choice == "👍 Yes":
-            liked_why = st.text_area("What did you like the most?")
-        elif feedback_choice == "👎 No":
-            disliked_why = st.text_area("What didn’t work for you?")
+    Product KB:
+    {dlp_kb}
 
-        # --- SUBMIT FEEDBACK ---
-        if st.button("Submit Feedback"):
+    Based on the goal, explain 2 product capabilities that would help, and suggest one thing they can try right now. Be friendly, specific, and practical.
+    """
+
+    response = model.generate_content(prompt)
+    st.write("🤖 Onboarding Buddy says:")
+    st.markdown(response.text)
+
+    # --- FEEDBACK ---
+
+    st.divider()
+    st.subheader("📣 Give Feedback")
+
+    feedback_col1, feedback_col2 = st.columns(2)
+    with feedback_col1:
+        liked = st.button("👍 Yes, it helped")
+    with feedback_col2:
+        disliked = st.button("👎 No, didn’t help")
+
+    if liked:
+        detail = st.text_input("What did you like the most?")
+        if detail:
             with open("feedback_log.txt", "a") as f:
-                f.write("\n==========================\n")
-                f.write(f"Persona: {persona}\n")
-                f.write(f"Goal: {goal}\n")
-                f.write(f"Response:\n{bot_reply}\n")
-                f.write(f"Helpful: {feedback_choice}\n")
-                if feedback_choice == "👍 Yes":
-                    f.write(f"Liked what: {liked_why}\n")
-                else:
-                    f.write(f"Disliked why: {disliked_why}\n")
-            st.success("✅ Feedback submitted successfully!")
+                f.write(f"{datetime.datetime.now()} | {st.session_state.user_name} | 👍 | {detail}\n")
+            st.success("Thanks! Your feedback is recorded.")
+
+    if disliked:
+        reason = st.text_input("Why didn’t it help?")
