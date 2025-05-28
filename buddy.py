@@ -5,7 +5,7 @@ import datetime
 # --- SETUP ---
 
 # Configure Gemini API
-genai.configure(api_key="YOUR_API_KEY")  # Replace with your Gemini API key
+genai.configure(api_key="AIzaSyD_uKqUnDhj7eV0WzNe4IH-z0bwwSe36mM")  # Replace with your Gemini API key
 
 model = genai.GenerativeModel("models/gemma-3-1b-it")  # Use working model
 
