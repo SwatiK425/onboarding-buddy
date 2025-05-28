@@ -1,0 +1,14 @@
+Microsoft DLP helps prevent accidental data leaks by detecting sensitive info like SSNs, credit cards, and health records across emails, files, and messages.
+
+Capabilities:
+- Policy templates for HIPAA, GDPR, PCI, etc.
+- Detects sensitive data in Outlook, Teams, SharePoint, OneDrive.
+- Auto-block or notify based on severity.
+- Integrates with Microsoft Purview for advanced insights.
+- Allows user justifications and overrides.
+- Admins get detailed incident reports.
+
+Use cases:
+- Prevent employee from sharing SSNs via email
+- Block uploading credit card numbers to public SharePoint
+- Warn HR when health records are attached to chats
