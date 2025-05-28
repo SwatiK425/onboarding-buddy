@@ -1,6 +1,3 @@
-# Install streamlit
-!pip install streamlit
-
 import streamlit as st
 import google.generativeai as genai
 import datetime
@@ -8,10 +5,13 @@ import datetime
 # --- SETUP ---
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyD_uKqUnDhj7eV0WzNe4IH-z0bwwSe36mM")  # Replace with your Gemini API key
+genai.configure(api_key="YOUR_API_KEY")  # Replace with your Gemini API key
 
 model = genai.GenerativeModel("models/gemma-3-1b-it")  # Use working model
 
+# Load KB (manual RAG)
+with open("dlp_kb.txt", "r") as file:
+    dlp_kb = file.read()
 
 # --- MEMORY ---
 
@@ -77,3 +77,8 @@ if st.session_state.user_goal:
 
     if disliked:
         reason = st.text_input("Why didn’t it help?")
+        if reason:
+            with open("feedback_log.txt", "a") as f:
+                f.write(f"{datetime.datetime.now()} | {st.session_state.user_name} | 👎 | {reason}\n")
+            st.warning("We appreciate your input. We’ll improve!")
+
