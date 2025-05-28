@@ -1,11 +1,13 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Setup Gemini API
+# Set up the API key
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-pro")  # No more "models/" prefix
 
-# UI
+# Create the model instance
+model = genai.GenerativeModel(model_name="gemini-pro")  # ✅ use correct model_name param
+
+# Streamlit UI
 st.set_page_config(page_title="Onboarding Buddy", page_icon="🤖")
 st.title("👋 Onboarding Buddy")
 
@@ -21,6 +23,7 @@ if user_input:
     - Use friendly, simple language
     - Avoid technical jargon
     """
+
     try:
         response = model.generate_content(prompt)
         st.markdown("### 🤖 Buddy says:")
