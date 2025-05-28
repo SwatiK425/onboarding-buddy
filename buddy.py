@@ -2,13 +2,8 @@ import streamlit as st
 import google.generativeai as genai
 
 # Setup Gemini API
-GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
-if not GEMINI_API_KEY:
-    st.error("Gemini API key is missing. Add it in Streamlit secrets.")
-    st.stop()
-
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-pro")
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+model = genai.GenerativeModel("gemini-pro")  # No more "models/" prefix
 
 # UI
 st.set_page_config(page_title="Onboarding Buddy", page_icon="🤖")
